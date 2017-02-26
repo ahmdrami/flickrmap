@@ -18,11 +18,12 @@ map
 
 
 
-testing_variable <- data.frame(lat = city_coord$latitude, lng = city_coord$longitude )
+testing_variable <- data.frame(lat = city_coord$latitude, lng = city_coord$longitude, tags =  city_coord$tags )
 
 mapqk <- testing_variable %>% leaflet() %>%
   addProviderTiles("CartoDB.DarkMatterNoLabels") %>%
-  addCircleMarkers(clusterOptions = markerClusterOptions(removeOutsideVisibleBounds = TRUE), radius = 0.5)
+  addCircleMarkers(clusterOptions = markerClusterOptions(removeOutsideVisibleBounds = TRUE), radius = 0.5, 
+                   popup =  as.character(tags))
   
 
 

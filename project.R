@@ -3,8 +3,8 @@
 library(jsonlite)
 library(ggplot2)
 library(dplyr)
-library(maps)
 library(dbscan)
+library(leaflet)
 
 # load data 
 if (!exists("df_total")) {
@@ -38,11 +38,11 @@ df_total$latitude <-  as.numeric(as.character(df_total$latitude))
 
 # Get all of the coordinates not equal to 0 
 filter_coord <- df_total %>% 
-  select(latitude, longitude) %>%
+  select(latitude, longitude, tags) %>%
   filter(latitude != 0)
 
 # Run dbscan to cluster the data
-filter_cord_clus <-  dbscan(filter_coord, eps = 0.01, minPts = 15)
+filter_cord_clus <-  dbscan(select(filter_coord, latitude, longitude), eps = 0.01, minPts = 15)
 
 # Assign cluster variables to filter coord
 filter_coord <- mutate(filter_coord, category = filter_cord_clus$cluster)
@@ -86,7 +86,7 @@ map = leaflet(city_coord) %>% addProviderTiles("CartoDB.DarkMatterNoLabels")
 for (i in groups) {
   d = city_coord[city_coord$cluster == i, ]
   map = map %>% addCircleMarkers(data = d, lng = ~longitude, lat = ~latitude, radius = 1.3, weight = 1, opacity = 0.2,
-                                 popup = ~as.character(i),  color = ~groupColours(cluster), group = i)
+                                 popup = ~as.character(tags),  color = ~groupColours(cluster), group = i)
 }
 
 # map %>% addLayersControl(overlayGroups = groups)
@@ -101,15 +101,15 @@ map
 
 
  
-city_coord$category <-  unlist(lapply(city_coord$cluster, function(x) {
-  for (i in 1:length(most_visited$numbers)) {
-    if (x == most_visited$numbers[[i]]) {
-      return(most_visited$times[[i]]) 
-    } else if ((i + 1) > length(most_visited$numbers)) {
-      return(0)
-    }
-  }
-}))
+# city_coord$category <-  unlist(lapply(city_coord$cluster, function(x) {
+#   for (i in 1:length(most_visited$numbers)) {
+#     if (x == most_visited$numbers[[i]]) {
+#       return(most_visited$times[[i]]) 
+#     } else if ((i + 1) > length(most_visited$numbers)) {
+#       return(0)
+#     }
+#   }
+# }))
  
 city_coord$category <- unlist(lapply(city_coord$category, function(x){
   if (x >= 30) { return(x) } 
