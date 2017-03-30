@@ -79,12 +79,25 @@ most_visited <- city_coord %>% filter(cluster != 0)
 noise_coord <- city_coord %>% filter(cluster == 0)
 
 
-# most_visited <- as.data.frame(table(city_coord$cluster))
-# names(most_visited) <- c("numbers", "times")
-# most_visited$rank <- rank(-most_visited$times, ties.method = "max")
-# most_visited <- most_visited[order(most_visited$rank, decreasing = FALSE),]
+# To check frequency of clusters
+cluster_freq <- as.data.frame(table(most_visited$cluster))
+names(cluster_freq) <- c("numbers", "times")
+cluster_freq$rank <- rank(-cluster_freq$times, ties.method = "max")
+cluster_freq <- cluster_freq[order(cluster_freq$rank, decreasing = FALSE),]
 
+# Keep frequency higher or equal to 30
+cluster_freq <- cluster_freq[cluster_freq$times >= 30,]
 
+# Keep clusters in a category column appeared more than 30 times 
+city_coord$category <-  unlist(lapply(city_coord$cluster, function(x) {
+  for (i in 1:length(cluster_freq$numbers)) {
+    if (x != 0 & x == cluster_freq$numbers[[i]]) {
+      return(x)
+    } else if ((i + 1) > length(cluster_freq$numbers)) {
+      return(0)
+    }
+  }
+}))
 
 # create group of colours in order to highlight different clusters on the map
 groupColours <- colorFactor(palette = "Set1", most_visited$cluster)
@@ -117,23 +130,10 @@ ggplot(city_coord, aes(x = longitude, y = latitude)) +
 
 
 
+ 
 
  
-# city_coord$category <-  unlist(lapply(city_coord$cluster, function(x) {
-#   for (i in 1:length(most_visited$numbers)) {
-#     if (x == most_visited$numbers[[i]]) {
-#       return(most_visited$times[[i]]) 
-#     } else if ((i + 1) > length(most_visited$numbers)) {
-#       return(0)
-#     }
-#   }
-# }))
- 
-city_coord$category <- unlist(lapply(city_coord$category, function(x){
-  if (x >= 30) { return(x) } 
-  else { return (0) }
-  
-}))
+
 
 
 
