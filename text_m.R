@@ -2,7 +2,7 @@
 library("tm")
 library("wordcloud2")
 library("dplyr")
-
+library("qdapDictionaries")
 clean_corpus <- function(c) {
 
   c <- tm_map(c, removePunctuation)
@@ -33,7 +33,7 @@ clean_corpus <- function(c) {
   return(c)
 }
 
-specific_cluster <- city_coord %>% filter(category == 66 & (tags != "" )) %>% select(tags)
+specific_cluster <- city_coord %>% filter(tags != "" ) %>% select(tags)
 specclus_vecsrc <- DataframeSource(specific_cluster)
 specclus_corps <- VCorpus(specclus_vecsrc)
 clean_tag <- clean_corpus(specclus_corps)
@@ -47,7 +47,7 @@ m_tdm <- as.matrix(specclus_tdm)
 term_freq <- rowSums(m_tdm)
 term_freq <- sort(term_freq, decreasing = TRUE)
 tag_freq <- data.frame(term = names(term_freq[1:100]) , num = term_freq[1:100])
-# wordcloud2(tag_freq, size = 1)
+wordcloud2(tag_freq, size = 1)
 
 
 tag_freq_vector <- as.vector(names(term_freq[1:100]))

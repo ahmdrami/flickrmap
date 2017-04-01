@@ -104,23 +104,26 @@ groupColours <- colorFactor(palette = "Set1", most_visited$cluster)
 groups = as.character(unique(most_visited$cluster))
 
 # create a leaflet map
-map = leaflet()
-  # addProviderTiles("CartoDB.DarkMatterNoLabels")
+map = leaflet(noise_coord) %>% 
+  addCircles(~longitude, ~latitude, radius = 1, weight = 1, opacity = 0.2, color = "grey", group = "Noise" )
+
+  
 
 # assign a different color to each point to visualise it better 
 for (i in groups) {
   d = most_visited[most_visited$cluster == i, ]
-  map = map %>% addCircleMarkers(data = d, lng = ~longitude, lat = ~latitude, radius = 1.3, weight = 1, opacity = 0.2,
-                                 popup = ~as.character(tags),  color = ~groupColours(cluster), group = i)
+  map = map %>% addCircles(data = d, ~longitude, ~latitude, radius = 1.4, weight = 1, opacity = 0.2,
+                                 popup = ~as.character(tags),  color = ~groupColours(cluster), group = "POI")
 }
 
 
-# map <-  map %>% addPolygons(data = convex_region[border_points, ], lng = ~longitude, lat = ~latitude, weight = 1, color = ~groupColours(16))
-# map <-  map %>% addPolygons(data = convex_region_t[border_points_t, ], lng = ~longitude, lat = ~latitude, weight = 1, color = ~groupColours(2))
-# map %>% addLayersControl(overlayGroups = groups)
-map %>% addCircleMarkers(data = noise_coord, lng = ~longitude, lat = ~latitude, radius = 1, weight = 1, opacity = 0.2, color = "grey" )
-# map
-
+map %>% addProviderTiles("CartoDB.DarkMatterNoLabels", group = "DarkMap") %>%
+  addProviderTiles("CartoDB.PositronNoLabels", group = "Default") %>%
+  addLayersControl(
+    baseGroups = c("Default", "DarkMap"),
+    overlayGroups = c("POI", "Noise", "Boundary"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
 
 # Plot data
 ggplot(city_coord, aes(x = longitude, y = latitude)) +

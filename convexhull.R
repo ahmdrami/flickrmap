@@ -16,7 +16,7 @@ for (i in 1:length(category_cluster)) {
   get_region_t <- chull(convex_region_t$latitude, convex_region_t$longitude)
   border_points_t <- c(get_region_t, get_region_t[1])
   
-  map <-  map %>% addPolygons(data = convex_region_t[border_points_t, ], lng = ~longitude, lat = ~latitude, weight = 1, color = ~groupColours(i))
+  map <-  map %>% addPolygons(data = convex_region_t[border_points_t, ], lng = ~longitude, lat = ~latitude, weight = 1, color = ~groupColours(i), group = "Boundary")
   
 }
 
